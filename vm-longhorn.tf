@@ -19,7 +19,7 @@ resource "azurerm_network_interface" "longhorn" {
 resource "azurerm_network_interface_backend_address_pool_association" "longhorn" {
   count                   = var.count-longhorn
   network_interface_id    = azurerm_network_interface.longhorn[count.index].id
-  ip_configuration_name   = "testconfiguration1"
+  ip_configuration_name   = "pip-longhorn${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.backend.id
 }
 
@@ -48,12 +48,12 @@ resource "azurerm_linux_virtual_machine" "longhorn" {
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.longhorn[count.index].id]
   size                  = var.longhorn-size
-
+  availability_set_id   = azurerm_availability_set.aset-rancher.id
 
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    sku       = var.sku
     version   = "latest"
   }
 
@@ -95,22 +95,22 @@ resource "azurerm_virtual_machine_data_disk_attachment" "longhorn" {
   caching            = "ReadWrite"
 }
 
-resource "azurerm_virtual_machine_extension" "custom-ext-longhorn" {
-  count                = var.count-longhorn
-  name                 = "custom-ext-longhorn${count.index}"
-  virtual_machine_id   = azurerm_linux_virtual_machine.longhorn[count.index].id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
+# resource "azurerm_virtual_machine_extension" "custom-ext-longhorn" {
+#   count                = var.count-longhorn
+#   name                 = "custom-ext-longhorn${count.index}"
+#   virtual_machine_id   = azurerm_linux_virtual_machine.longhorn[count.index].id
+#   publisher            = "Microsoft.Azure.Extensions"
+#   type                 = "CustomScript"
+#   type_handler_version = "2.0"
 
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "hostname && uptime"
-    }
-SETTINGS
+#   settings = <<SETTINGS
+#     {
+#         "commandToExecute": "hostname && uptime"
+#     }
+# SETTINGS
 
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }

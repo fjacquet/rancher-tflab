@@ -13,5 +13,5 @@ resource "local_file" "rke-config" {
       worker-pip   = azurerm_linux_virtual_machine.worker.*.public_ip_address
     }
   )
-  filename = "rke-cluster.yml"
+  filename = "cluster.yml"
 }

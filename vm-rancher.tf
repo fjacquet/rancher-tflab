@@ -19,7 +19,7 @@ resource "azurerm_network_interface" "rancher" {
 resource "azurerm_network_interface_backend_address_pool_association" "rancher" {
   count                   = var.count-rancher
   network_interface_id    = azurerm_network_interface.rancher[count.index].id
-  ip_configuration_name   = "rancher-config"
+  ip_configuration_name   = "pip-rancher${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.backend.id
 }
 
@@ -33,15 +33,6 @@ resource "azurerm_public_ip" "rancher" {
   ip_version          = "IPv4"
 }
 
-resource "azurerm_public_ip" "rancher6" {
-  count               = var.count-rancher
-  name                = "pip6-rancher${count.index}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  allocation_method   = "Dynamic"
-  ip_version          = "IPv6"
-}
-
 resource "azurerm_dns_a_record" "rancher" {
   count               = var.count-rancher
   name                = "a-rancher${count.index}"
@@ -51,14 +42,6 @@ resource "azurerm_dns_a_record" "rancher" {
   target_resource_id  = azurerm_public_ip.rancher[count.index].id
 }
 
-resource "azurerm_dns_aaaa_record" "rancher" {
-  count               = var.count-rancher
-  name                = "aaaa-rancher${count.index}"
-  zone_name           = azurerm_dns_zone.ljf.name
-  resource_group_name = azurerm_resource_group.main.name
-  ttl                 = 300
-  target_resource_id  = azurerm_public_ip.rancher6[count.index].id
-}
 
 resource "azurerm_linux_virtual_machine" "rancher" {
   count                 = var.count-rancher
@@ -66,14 +49,16 @@ resource "azurerm_linux_virtual_machine" "rancher" {
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.rancher[count.index].id]
+  availability_set_id   = azurerm_availability_set.aset-rancher.id
   size                  = var.rancher-size
   computer_name         = "worker${count.index}"
   admin_username        = var.vm-user
 
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "18.04-LTS"
+    sku       = var.sku
     version   = "latest"
   }
   os_disk {
@@ -93,22 +78,22 @@ resource "azurerm_linux_virtual_machine" "rancher" {
   }
 }
 
-resource "azurerm_virtual_machine_extension" "custom-ext-rancher" {
-  count                = var.count-rancher
-  name                 = "custom-ext-rancher${count.index}"
-  virtual_machine_id   = azurerm_linux_virtual_machine.rancher[count.index].id
-  publisher            = "Microsoft.Azure.Extensions"
-  type                 = "CustomScript"
-  type_handler_version = "2.0"
+# resource "azurerm_virtual_machine_extension" "custom-ext-rancher" {
+#   count                = var.count-rancher
+#   name                 = "custom-ext-rancher${count.index}"
+#   virtual_machine_id   = azurerm_linux_virtual_machine.rancher[count.index].id
+#   publisher            = "Microsoft.Azure.Extensions"
+#   type                 = "CustomScript"
+#   type_handler_version = "2.0"
 
-  settings = <<SETTINGS
-    {
-        "commandToExecute": "hostname && uptime"
-    }
-SETTINGS
+#   settings = <<SETTINGS
+#     {
+#         "commandToExecute": "hostname && uptime"
+#     }
+# SETTINGS
 
 
-  tags = {
-    environment = var.environment
-  }
-}
+#   tags = {
+#     environment = var.environment
+#   }
+# }

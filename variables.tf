@@ -12,15 +12,16 @@ variable "enable_accelerated_networking" {
 # Standard_E4as_v4
 
 variable "worker-size" {
-  default = "Standard_B1s"
+  default = "Standard_D4s_v3"
+
 }
 
 variable "rancher-size" {
-  default = "Standard_B1s"
+  default = "Standard_D2s_v3"
 }
 
 variable "longhorn-size" {
-  default = "Standard_B1s"
+  default = "Standard_D2s_v3"
 }
 
 variable "data-size" {
@@ -36,15 +37,15 @@ variable "vm-pass" {
 }
 
 variable "count-rancher" {
-  default = "2"
+  default = "3"
 }
 
 variable "count-longhorn" {
-  default = "1"
+  default = "2"
 }
 
 variable "count-worker" {
-  default = "1"
+  default = "2"
 }
 
 variable "environment" {
@@ -57,4 +58,8 @@ variable "vnet-main" {
 
 variable "subnet-main" {
   default = "10.0.2.0/24"
+}
+
+variable "sku" {
+  default = "18.04-LTS"
 }
