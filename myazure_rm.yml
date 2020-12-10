@@ -1,9 +1,10 @@
+---
 plugin: azure_rm
 include_vm_resource_groups:
   - tf-rancher-resources
 auth_source: auto
 
-cache: yes
+cache: true
 cache_timeout: 7200
 keyed_groups:
   - prefix: tag

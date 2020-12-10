@@ -26,7 +26,27 @@ resource "azurerm_lb_backend_address_pool" "backend" {
   loadbalancer_id     = azurerm_lb.frontend.id
 }
 
-resource "azurerm_lb_nat_rule" "lb-nat-https" {
+resource "azurerm_lb_rule" "ssh" {
+  resource_group_name            = azurerm_resource_group.main.name
+  loadbalancer_id                = azurerm_lb.frontend.id
+  name                           = "SSH"
+  protocol                       = "Tcp"
+  frontend_port                  = 22
+  backend_port                   = 22
+  frontend_ip_configuration_name = "PublicIPAddress"
+}
+
+resource "azurerm_lb_rule" "http" {
+  resource_group_name            = azurerm_resource_group.main.name
+  loadbalancer_id                = azurerm_lb.frontend.id
+  name                           = "HTTP"
+  protocol                       = "Tcp"
+  frontend_port                  = 80
+  backend_port                   = 80
+  frontend_ip_configuration_name = "PublicIPAddress"
+}
+
+resource "azurerm_lb_rule" "https" {
   resource_group_name            = azurerm_resource_group.main.name
   loadbalancer_id                = azurerm_lb.frontend.id
   name                           = "HTTPS"
@@ -36,9 +56,27 @@ resource "azurerm_lb_nat_rule" "lb-nat-https" {
   frontend_ip_configuration_name = "PublicIPAddress"
 }
 
-resource "azurerm_lb_probe" "lb-probe-ssh" {
+resource "azurerm_lb_probe" "ssh" {
   resource_group_name = azurerm_resource_group.main.name
   loadbalancer_id     = azurerm_lb.frontend.id
   name                = "ssh-running-probe"
-  port                = 22
+  port                = "22"
+}
+
+resource "azurerm_lb_probe" "http" {
+  resource_group_name = azurerm_resource_group.main.name
+  loadbalancer_id     = azurerm_lb.frontend.id
+  name                = "http-running-probe"
+  protocol            = "Http"
+  port                = 80
+  request_path        = "/"
+}
+
+resource "azurerm_lb_probe" "https" {
+  resource_group_name = azurerm_resource_group.main.name
+  loadbalancer_id     = azurerm_lb.frontend.id
+  name                = "https-running-probe"
+  protocol            = "Https"
+  port                = 443
+  request_path        = "/"
 }
