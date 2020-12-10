@@ -81,23 +81,23 @@ resource "azurerm_linux_virtual_machine" "worker" {
 
 }
 
-resource "azurerm_managed_disk" "worker" {
-  count                = var.count-worker
-  name                 = "disk-data-worker${count.index}"
-  location             = azurerm_resource_group.main.location
-  resource_group_name  = azurerm_resource_group.main.name
-  storage_account_type = "Standard_LRS"
-  create_option        = "Empty"
-  disk_size_gb         = 100
-}
+# resource "azurerm_managed_disk" "worker" {
+#   count                = var.count-worker
+#   name                 = "disk-data-worker${count.index}"
+#   location             = azurerm_resource_group.main.location
+#   resource_group_name  = azurerm_resource_group.main.name
+#   storage_account_type = "Standard_LRS"
+#   create_option        = "Empty"
+#   disk_size_gb         = 100
+# }
 
-resource "azurerm_virtual_machine_data_disk_attachment" "worker" {
-  count              = var.count-worker
-  managed_disk_id    = azurerm_managed_disk.worker[count.index].id
-  virtual_machine_id = azurerm_linux_virtual_machine.worker[count.index].id
-  lun                = "10"
-  caching            = "ReadWrite"
-}
+# resource "azurerm_virtual_machine_data_disk_attachment" "worker" {
+#   count              = var.count-worker
+#   managed_disk_id    = azurerm_managed_disk.worker[count.index].id
+#   virtual_machine_id = azurerm_linux_virtual_machine.worker[count.index].id
+#   lun                = "10"
+#   caching            = "ReadWrite"
+# }
 
 # resource "azurerm_virtual_machine_extension" "custom-ext-worker" {
 #   count                = var.count-worker
