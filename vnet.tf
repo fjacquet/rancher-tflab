@@ -16,3 +16,13 @@ resource "azurerm_subnet" "internal" {
   address_prefixes     = [var.subnet-main]
 
 }
+
+resource "azurerm_application_security_group" "asg-main" {
+  name                = "asg-main"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  tags = {
+    Hello = "World"
+  }
+}

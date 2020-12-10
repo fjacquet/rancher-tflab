@@ -17,6 +17,34 @@ resource "azurerm_network_interface" "worker" {
   }
 }
 
+resource "azurerm_network_interface_security_group_association" "worker" {
+  count                     = var.count-worker
+  network_interface_id      = azurerm_network_interface.worker[count.index].id
+  network_security_group_id = azurerm_network_security_group.nsg-worker.id
+}
+
+resource "azurerm_network_security_group" "nsg-worker" {
+  name                = "nsg-worker-https"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "https"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["22", "80", "443"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
 resource "azurerm_network_interface_backend_address_pool_association" "worker" {
   count                   = var.count-worker
   network_interface_id    = azurerm_network_interface.worker[count.index].id

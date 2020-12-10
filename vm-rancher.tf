@@ -16,6 +16,34 @@ resource "azurerm_network_interface" "rancher" {
   }
 }
 
+resource "azurerm_network_interface_security_group_association" "rancher" {
+  count                     = var.count-rancher
+  network_interface_id      = azurerm_network_interface.rancher[count.index].id
+  network_security_group_id = azurerm_network_security_group.nsg-rancher.id
+}
+
+resource "azurerm_network_security_group" "nsg-rancher" {
+  name                = "nsg-rancher-https"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+
+  security_rule {
+    name                       = "https"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["22", "80", "443"]
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  tags = {
+    environment = var.environment
+  }
+}
+
 resource "azurerm_network_interface_backend_address_pool_association" "rancher" {
   count                   = var.count-rancher
   network_interface_id    = azurerm_network_interface.rancher[count.index].id
