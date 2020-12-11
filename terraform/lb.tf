@@ -71,12 +71,3 @@ resource "azurerm_lb_probe" "http" {
   port                = 80
   request_path        = "/"
 }
-
-resource "azurerm_lb_probe" "https" {
-  resource_group_name = azurerm_resource_group.main.name
-  loadbalancer_id     = azurerm_lb.frontend.id
-  name                = "https-running-probe"
-  protocol            = "Https"
-  port                = 443
-  request_path        = "/"
-}
