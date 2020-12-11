@@ -1,0 +1,14 @@
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: link to keys
+      file:
+        src=terraform/{{ item }}
+        dest=../{{ item }}
+        state=link
+        follow=false
+        force=true
+      with_items:
+        - id_rsa
+        - id_rsa.pub

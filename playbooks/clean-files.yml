@@ -1,0 +1,12 @@
+- hosts: localhost
+  gather_facts: false
+  connection: local
+  tasks:
+    - name: remove state files
+      file:
+        path={{ item }}
+        state=absent
+      with_items:
+        - cluster.yml
+        - id_rsa
+        - id_rsa.pub

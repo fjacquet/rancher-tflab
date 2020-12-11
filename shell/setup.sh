@@ -1,14 +1,20 @@
+set -x
 echo "You should be logged in Azure already"
-rm -f cluster.yml
 
+
+# cd terraform
 # Create infra
-terraform apply --auto-approve
+terraform -chdir=terraform apply -auto-approve -refresh=true
+#
+# prepare id
+ansible-playbook playbooks/create-links.yml
+
 # add ssh key
 ssh-add id_rsa
 # Configure VMs
-ansible-playbook --private-key=id_rsa -i myazure_rm.yml ans-docker.yml
+ansible-playbook --private-key=id_rsa -i myazure_rm.yml playbooks/install-docker.yml
 # Build cluster
-rke up --config cluster.yml
+rke up --config terraform/cluster.yml
 # Get helm setup
 # helm repo add rancher-stable      	https://releases.rancher.com/server-charts/stable
 helm repo add rancher-latest https://releases.rancher.com/server-charts/latest
@@ -31,8 +37,3 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --versi
 kubectl create namespace cattle-system
 helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.ljf.home
 
-# helm install rancher rancher-latest/rancher \
-#   --namespace cattle-system \
-#   --set hostname=rancher.my.org \
-#   --set ingress.tls.source=letsEncrypt \
-#   --set letsEncrypt.email=me@example.org
