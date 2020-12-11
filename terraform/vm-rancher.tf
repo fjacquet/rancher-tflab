@@ -79,7 +79,7 @@ resource "azurerm_linux_virtual_machine" "rancher" {
   network_interface_ids = [azurerm_network_interface.rancher[count.index].id]
   availability_set_id   = azurerm_availability_set.aset-rancher.id
   size                  = var.rancher-size
-  computer_name         = "worker${count.index}"
+  computer_name         = "rancher${count.index}"
   admin_username        = var.vm-user
 
 
