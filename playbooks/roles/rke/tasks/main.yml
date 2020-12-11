@@ -1,0 +1,49 @@
+---
+- name: Add RKE admin user
+  user:
+    name: rke
+    shell: /bin/bash
+
+- name: Create sudo file
+  file:
+    path: /etc/sudoers.d/rke
+    state: touch
+
+- name: Give rke user passwordless sudo
+  lineinfile:
+    path: /etc/sudoers.d/rke
+    state: present
+    line: "rke ALL=(ALL:ALL) NOPASSWD: ALL"
+
+- name: Set authorized key taken from file
+  authorized_key:
+    user: rke
+    state: present
+    key: "{{ lookup('file', '../id_rsa.pub') }}"
+
+- name: Load kernel modules for RKE
+  modprobe:
+    name: "{{ item }}"
+    state: present
+    with_items: "{{ kernel_modules }}"
+
+- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+  shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+.*)$'
+    replace: '# \1'
+
+- name: Modify sysctl entries
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+    with_items:
+      - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
+      - { key: net.bridge.bridge-nf-call-iptables, value: 1 }

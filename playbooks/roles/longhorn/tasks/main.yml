@@ -1,0 +1,23 @@
+---
+- name: vgcreate
+  lvg:
+    vg: vg-storage
+    pvs: /dev/disk/azure/scsi1/lun20
+
+- name: lvcreate
+  lvol:
+    vg: vg-storage
+    lv: lv-storage
+    size: 90%VG
+
+- name: create file system
+  filesystem:
+    fstype: xfs
+    dev: /dev/vg-storage/lv-storage
+
+- name: mount logical volume
+  mount:
+    name: /var/lib/longhorn
+    src: /dev/vg-storage/lv-storage
+    fstype: xfs
+    state: mounted

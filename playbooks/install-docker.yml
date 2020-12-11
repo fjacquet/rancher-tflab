@@ -1,7 +1,6 @@
 ---
 # Prepare for correct python setup
 - hosts: tag_engine_docker
-  strategy: free
   become: yes
   gather_facts: true
   vars_files:
@@ -12,164 +11,26 @@
     ansible_ssh_user: ubuntu
     ansible_python_interpreter: /usr/bin/python3
 
-  tasks:
-    - name: Update apt-get repo and cache
-      apt:
-        update_cache=yes
-        force_apt_get=yes
-        cache_valid_time=3600
-
-    - name: Upgrade all apt packages
-      apt:
-        upgrade=dist
-        force_apt_get=yes
-        autoremove=yes
-
-    - name: Check if a reboot is needed for Debian and Ubuntu boxes
-      register: reboot_required_file
-      stat: path=/var/run/reboot-required get_md5=no
-
-    - name: Reboot the Debian or Ubuntu server
-      reboot:
-        msg: "Reboot initiated by Ansible due to kernel updates"
-        connect_timeout: 5
-        reboot_timeout: 300
-        pre_reboot_delay: 0
-        post_reboot_delay: 30
-        test_command: uptime
-      when: reboot_required_file.stat.exists
-
-# Install docker
-- hosts: tag_engine_docker
-  strategy: free
-  become: yes
-  gather_facts: true
-  vars_files:
-    - ../secret
-
-  vars:
-    ansible_user: ubuntu
-    ansible_ssh_user: ubuntu
-    ansible_python_interpreter: /usr/bin/python3
-
-    pip_install_packages:
-      - name: setuptools
-      - name: docker
+    # pip_install_packages:
+    #   - name: setuptools
+    #   - name: docker
     docker_users:
       - ubuntu
       - rke
-    kernel_modules:
-      - br_netfilter
-      - ip6_udp_tunnel
-      - ip_set
-      - ip_set_hash_ip
-      - ip_set_hash_net
-      - iptable_filter
-      - iptable_nat
-      - iptable_mangle
-      - iptable_raw
-      - nf_conntrack_netlink
-      - nf_conntrack
-      - nf_defrag_ipv4
-      - nf_nat
-      - nfnetlink
-      - udp_tunnel
-      - veth
-      - vxlan
-      - x_tables
-      - xt_addrtype
-      - xt_conntrack
-      - xt_comment
-      - xt_mark
-      - xt_multiport
-      - xt_nat
-      - xt_recent
-      - xt_set
-      - xt_statistic
-      - xt_tcpudp
-
-  tasks:
-    - name: Add RKE admin user
-      user:
-        name: rke
-        shell: /bin/bash
-
-    - name: Create sudo file
-      file:
-        path: /etc/sudoers.d/rke
-        state: touch
-
-    - name: Give rke user passwordless sudo
-      lineinfile:
-        path: /etc/sudoers.d/rke
-        state: present
-        line: "rke ALL=(ALL:ALL) NOPASSWD: ALL"
-
-    - name: Set authorized key taken from file
-      authorized_key:
-        user: rke
-        state: present
-        key: "{{ lookup('file', 'id_rsa.pub') }}"
-
-    - name: Load kernel modules for RKE
-      modprobe:
-        name: "{{ item }}"
-        state: present
-      with_items: "{{ kernel_modules }}"
-
-    - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-      shell: |
-        swapoff -a
-
-    - name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
-      replace:
-        path: /etc/fstab
-        regexp: '^([^#].*?\sswap\s+.*)$'
-        replace: '# \1'
-
-    - name: Modify sysctl entries
-      sysctl:
-        name: "{{ item.key }}"
-        value: "{{ item.value }}"
-        sysctl_set: yes
-        state: present
-        reload: yes
-      with_items:
-        - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
-        - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
-        - { key: net.ipv4.ip_forward, value: 1 }
 
   roles:
-    - geerlingguy.pip
-    - geerlingguy.docker
+    - docker
+    - update
+    - rke
 
 # Prepare storage
 - hosts: tag_role_longhorn
-  strategy: free
   become: yes
+
   vars:
     ansible_user: ubuntu
     ansible_ssh_user: ubuntu
-  tasks:
-    - name: vgcreate
-      lvg:
-        vg: vg-storage
-        pvs: /dev/disk/azure/scsi1/lun20
+    ansible_python_interpreter: /usr/bin/python3
 
-    - name: lvcreate
-      lvol:
-        vg: vg-storage
-        lv: lv-storage
-        size: 90%VG
-
-    - name: create file system
-      filesystem:
-        fstype: xfs
-        dev: /dev/vg-storage/lv-storage
-
-    - name: mount logical volume
-      mount:
-        name: /var/lib/longhorn
-        src: /dev/vg-storage/lv-storage
-        fstype: xfs
-        state: mounted
+  roles:
+    - longhorn

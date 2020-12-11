@@ -1,0 +1,85 @@
+---
+# - vars:
+#     docker_edition: "ce"
+#     docker_version: "5:19.03.14~3-0~ubuntu-bionic"
+#     docker_cli_package: "docker-{{ docker_edition }}-cli={{ docker_version }}"
+#     docker_package: "docker-{{ docker_edition }}={{ docker_version }}"
+- name: Ensure old versions of Docker are not installed.
+  package:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Ensure dependencies are installed.
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - gnupg2
+    state: present
+
+- name: Add Docker apt key.
+  apt_key:
+    url: "{{ docker_apt_gpg_key }}"
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    state: present
+  register: add_repository_key
+  ignore_errors: "{{ docker_apt_ignore_key_error }}"
+
+- name: Ensure curl is present (on older systems without SNI).
+  package: name=curl state=present
+  when: add_repository_key is failed
+
+- name: Add Docker apt key (alternative for older systems without SNI).
+  shell: >
+    curl -sSL {{ docker_apt_gpg_key }} | sudo apt-key add -
+  args:
+    warn: false
+  when: add_repository_key is failed
+
+- name: Add Docker repository.
+  apt_repository:
+    repo: "{{ docker_apt_repository }}"
+    state: present
+    update_cache: true
+
+- name: Unpin docker-ce version
+  dpkg_selections:
+    name:
+      - "{{ docker_package }}"
+      - "{{ docker_cli_package }}"
+    selection: hold
+  when: "'=' not in docker_package"
+
+- name: Update apt and install docker-ce
+  apt:
+    update_cache: true
+    name:
+      - "{{ docker_package }}"
+      - "{{ docker_cli_package }}"
+
+- name: Pin docker-ce version
+  dpkg_selections:
+    name:
+      - "docker-{{ docker_edition }}"
+      - "docker-{{ docker_edition }}-cli"
+    selection: hold
+
+# - name: Pin docker-ce version
+#   dpkg_selections:
+#     name:
+#       - "{{ docker_package.split('=')[0] }}"
+#       - "{{ docker_cli_package.split('=')[0] }}"
+#     selection: hold
+#   when: "'=' in docker_package"
+
+- name: Ensure docker users are added to the docker group.
+  user:
+    name: "{{ item }}"
+    groups: docker
+    append: true
+  with_items: "{{ docker_users }}"
+
+- name: restart docker
+  service: "name=docker state={{ docker_restart_handler_state }}"
