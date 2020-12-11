@@ -73,7 +73,7 @@ resource "azurerm_dns_a_record" "rancher" {
 
 resource "azurerm_linux_virtual_machine" "rancher" {
   count                 = var.count-rancher
-  name                  = "vm-rancher${count.index}"
+  name                  = "rancher${count.index}"
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.rancher[count.index].id]

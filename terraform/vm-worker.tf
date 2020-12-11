@@ -73,7 +73,7 @@ resource "azurerm_dns_a_record" "worker" {
 
 resource "azurerm_linux_virtual_machine" "worker" {
   count                 = var.count-worker
-  name                  = "vm-worker${count.index}"
+  name                  = "worker${count.index}"
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.worker[count.index].id]

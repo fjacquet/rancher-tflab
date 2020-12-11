@@ -10,3 +10,7 @@
         - cluster.yml
         - id_rsa
         - id_rsa.pub
+        - cluster.rkestate
+        - kube_config_cluster.yml
+        - terraform/cluster.rkestate
+        - terraform/kube_config_cluster.yml

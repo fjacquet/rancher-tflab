@@ -36,7 +36,7 @@ variable "vm-pass" {
 }
 
 variable "count-rancher" {
-  default = "1"
+  default = "3"
 }
 
 variable "count-longhorn" {
@@ -44,7 +44,7 @@ variable "count-longhorn" {
 }
 
 variable "count-worker" {
-  default = "0"
+  default = "2"
 }
 
 variable "environment" {

@@ -10,9 +10,9 @@ terraform -chdir=terraform apply -auto-approve -refresh=true
 ansible-playbook playbooks/create-links.yml
 
 # add ssh key
-ssh-add id_rsa
+ssh-add terraform/id_rsa
 # Configure VMs
-ansible-playbook --private-key=id_rsa -i myazure_rm.yml playbooks/install-docker.yml
+ansible-playbook --private-key=id_rsa -i myazure_rm.yml playbooks/prepare-rancher.yml
 # Build cluster
 rke up --config terraform/cluster.yml
 # Get helm setup
@@ -25,7 +25,7 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 # Update your local Helm chart repository cache
 helm repo update
 
-export KUBECONFIG=./kube_config_cluster.yml
+export KUBECONFIG=terraform/kube_config_cluster.yml
 
 # Install the CustomResourceDefinition resources separately
 kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
