@@ -13,7 +13,6 @@ variable "enable_accelerated_networking" {
 
 variable "worker-size" {
   default = "Standard_D4s_v3"
-
 }
 
 variable "rancher-size" {
@@ -37,15 +36,15 @@ variable "vm-pass" {
 }
 
 variable "count-rancher" {
-  default = "3"
+  default = "1"
 }
 
 variable "count-longhorn" {
-  default = "2"
+  default = "0"
 }
 
 variable "count-worker" {
-  default = "2"
+  default = "0"
 }
 
 variable "environment" {

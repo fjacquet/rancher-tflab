@@ -46,6 +46,16 @@ resource "azurerm_lb_rule" "http" {
   frontend_ip_configuration_name = "PublicIPAddress"
 }
 
+resource "azurerm_lb_rule" "KubeAPI" {
+  resource_group_name            = azurerm_resource_group.main.name
+  loadbalancer_id                = azurerm_lb.frontend.id
+  name                           = "KubeAPI"
+  protocol                       = "Tcp"
+  frontend_port                  = 6443
+  backend_port                   = 6443
+  frontend_ip_configuration_name = "PublicIPAddress"
+}
+
 resource "azurerm_lb_rule" "https" {
   resource_group_name            = azurerm_resource_group.main.name
   loadbalancer_id                = azurerm_lb.frontend.id
