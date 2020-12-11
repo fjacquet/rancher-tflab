@@ -25,7 +25,7 @@
   modprobe:
     name: "{{ item }}"
     state: present
-    with_items: "{{ kernel_modules }}"
+  with_items: "{{ kernel_modules }}"
 
 - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
   shell: |
@@ -44,6 +44,6 @@
     sysctl_set: yes
     state: present
     reload: yes
-    with_items:
-      - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
-      - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
+  with_items:
+    - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
+    - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
