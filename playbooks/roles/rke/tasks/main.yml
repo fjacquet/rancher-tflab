@@ -47,3 +47,10 @@
   with_items:
     - { key: net.bridge.bridge-nf-call-ip6tables, value: 1 }
     - { key: net.bridge.bridge-nf-call-iptables, value: 1 }
+
+- name: Set /etc/hosts using hostgroups
+  action: template
+    dest=/etc/hosts
+    src=../templates/hosts.j2
+    owner=root
+    group=root

@@ -15,6 +15,9 @@ variable "worker-size" {
   default = "Standard_D4s_v3"
 }
 
+variable "mgmt-size" {
+  default = "Standard_D2s_v3"
+}
 variable "rancher-size" {
   default = "Standard_D2s_v3"
 }
@@ -36,17 +39,19 @@ variable "vm-pass" {
 }
 
 variable "count-rancher" {
-  default = "3"
+  default = "1"
 }
 
 variable "count-longhorn" {
-  default = "0"
+  default = "3"
 }
 
 variable "count-worker" {
-  default = "2"
+  default = "0"
 }
-
+variable "count-mgmt" {
+  default = "1"
+}
 variable "environment" {
   default = "demo"
 }

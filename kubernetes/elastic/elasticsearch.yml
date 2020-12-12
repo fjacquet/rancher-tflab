@@ -1,0 +1,11 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: es
+spec:
+  version: 7.10.1
+  nodeSets:
+    - name: default
+      count: 2
+      config:
+        node.store.allow_mmap: false

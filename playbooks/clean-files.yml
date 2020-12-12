@@ -2,15 +2,27 @@
   gather_facts: false
   connection: local
   tasks:
+    - name: Find out playbook's path
+      shell: pwd
+      register: playbook_path_output
+
     - name: remove state files
-      file:
-        path={{ item }}
+      file: path=`{{ playbook_path_output }}/../{{ item }}
         state=absent
+        force=yes
       with_items:
         - cluster.yml
+        - cluster.rkestate
         - id_rsa
         - id_rsa.pub
-        - cluster.rkestate
         - kube_config_cluster.yml
-        - terraform/cluster.rkestate
-        - terraform/kube_config_cluster.yml
+    - name: remove state files
+      file: path={{ playbook_path_output }}/../terraform/{{ item }}
+        state=absent
+        force=yes
+      with_items:
+        - cluster.yml
+        - cluster.rkestate
+        - id_rsa
+        - id_rsa.pub
+        - kube_config_cluster.yml
