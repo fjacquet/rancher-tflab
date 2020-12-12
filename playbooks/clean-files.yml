@@ -6,8 +6,12 @@
       shell: pwd
       register: playbook_path_output
 
-    - name: remove state files
-      file: path=`{{ playbook_path_output }}/../{{ item }}
+    - name: Show path
+      debug:
+        msg: "{{ playbook_path_output.stdout }}/../"
+
+    - name: remove symlinks
+      file: path="{{ playbook_path_output.stdout }}/../{{ item }}"
         state=absent
         force=yes
       with_items:
@@ -16,8 +20,9 @@
         - id_rsa
         - id_rsa.pub
         - kube_config_cluster.yml
-    - name: remove state files
-      file: path={{ playbook_path_output }}/../terraform/{{ item }}
+
+    - name: remove stale files
+      file: path="{{ playbook_path_output.stdout }}/../terraform/{{ item }}"
         state=absent
         force=yes
       with_items:

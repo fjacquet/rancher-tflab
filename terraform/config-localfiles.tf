@@ -1,6 +1,16 @@
 ### The Ansible inventory file
+# Save kubeconfig file for interacting with the RKE cluster on your local machine
+resource "local_file" "kube_config_server_yaml" {
+  filename = format("%s/%s", path.root, "kube_config_server.yaml")
+  content  = rke_cluster.rancher_cluster.kube_config_yaml
+}
+
+resource "local_file" "kube_config_workload_yaml" {
+  filename = format("%s/%s", path.root, "kube_config_workload.yaml")
+  content  = rancher2_cluster.quickstart_workload.kube_config
+}
 resource "local_file" "rke-config" {
-  content = templatefile("cluster.tmpl",
+  content = templatefile("cloud-common/files/cluster.template",
     {
       rancher-id   = azurerm_linux_virtual_machine.rancher.*.name,
       rancher-ip   = azurerm_linux_virtual_machine.rancher.*.private_ip_address,
@@ -13,5 +23,5 @@ resource "local_file" "rke-config" {
       worker-pip   = azurerm_linux_virtual_machine.worker.*.public_ip_address
     }
   )
-  filename = "cluster.yml"
+  filename = "manual-cluster.yml"
 }

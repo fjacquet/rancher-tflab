@@ -17,12 +17,12 @@ resource "azurerm_subnet" "internal" {
 
 }
 
-resource "azurerm_application_security_group" "asg-main" {
-  name                = "asg-main"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
+# resource "azurerm_application_security_group" "asg-main" {
+#   name                = "asg-main"
+#   location            = azurerm_resource_group.main.location
+#   resource_group_name = azurerm_resource_group.main.name
 
-  tags = {
-    Hello = "World"
-  }
-}
+#   tags = {
+#     Hello = "World"
+#   }
+# }

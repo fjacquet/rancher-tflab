@@ -1,10 +1,10 @@
 set -x
-echo "You should be logged in Azure already"
+echo "Sign in needed."
 
 
 # cd terraform
 # Create infra
-terraform -chdir=terraform apply -auto-approve -refresh=true
+terraform -chdir=terraform apply -auto-approve -refresh=true -parallelism=50
 #
 # prepare id
 ansible-playbook playbooks/create-links.yml
@@ -24,12 +24,11 @@ helm repo add elastic https://helm.elastic.co
 helm repo add bitnami https://charts.bitnami.com/bitnami
 # Update your local Helm chart repository cache
 helm repo update
-kubectl describe pods
 chmod 400 kube_config_cluster.yml
 export KUBECONFIG=kube_config_cluster.yml
 
 # Install the CustomResourceDefinition resources separately
-kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yamln
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.crds.yaml
 # Create the namespace for cert-manager
 kubectl create namespace cert-manager
 kubectl create namespace cattle-system

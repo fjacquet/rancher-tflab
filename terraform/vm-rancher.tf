@@ -28,14 +28,25 @@ resource "azurerm_network_security_group" "nsg-rancher" {
   resource_group_name = azurerm_resource_group.main.name
 
   security_rule {
-    name                       = "https"
-    priority                   = 100
+    name                       = "ports"
+    priority                   = 101
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_ranges    = ["22", "80", "443", "6443"]
     source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+  security_rule {
+    name                       = "any"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "*"
+    source_address_prefix      = "46.20.242.61/32"
     destination_address_prefix = "*"
   }
 
@@ -61,14 +72,6 @@ resource "azurerm_public_ip" "rancher" {
   ip_version          = "IPv4"
 }
 
-resource "azurerm_dns_a_record" "rancher" {
-  count               = var.count-rancher
-  name                = "a-rancher${count.index}"
-  zone_name           = azurerm_dns_zone.ljf.name
-  resource_group_name = azurerm_resource_group.main.name
-  ttl                 = 300
-  target_resource_id  = azurerm_public_ip.rancher[count.index].id
-}
 
 
 resource "azurerm_linux_virtual_machine" "rancher" {

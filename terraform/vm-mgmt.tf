@@ -46,6 +46,7 @@ resource "azurerm_network_security_group" "nsg-mgmt" {
 }
 
 
+
 resource "azurerm_public_ip" "mgmt" {
   count               = var.count-mgmt
   name                = "pip-mgmt${count.index}"
@@ -55,88 +56,72 @@ resource "azurerm_public_ip" "mgmt" {
   ip_version          = "IPv4"
 }
 
-resource "azurerm_dns_a_record" "mgmt" {
-  count               = var.count-mgmt
-  name                = "a-mgmt${count.index}"
-  zone_name           = azurerm_dns_zone.ljf.name
-  resource_group_name = azurerm_resource_group.main.name
-  ttl                 = 300
-  target_resource_id  = azurerm_public_ip.mgmt[count.index].id
-}
 
 
-resource "azurerm_linux_virtual_machine" "mgmt" {
-  count                 = var.count-mgmt
-  name                  = "mgmt${count.index}"
-  location              = azurerm_resource_group.main.location
-  resource_group_name   = azurerm_resource_group.main.name
-  network_interface_ids = [azurerm_network_interface.mgmt[count.index].id]
-  availability_set_id   = azurerm_availability_set.aset-rancher.id
-  size                  = var.mgmt-size
-  computer_name         = "mgmt${count.index}"
-  admin_username        = var.vm-user
+
+resource "azurerm_windows_virtual_machine" "mgmt" {
+  count                      = var.count-mgmt
+  name                       = "mgmt${count.index}"
+  location                   = azurerm_resource_group.main.location
+  resource_group_name        = azurerm_resource_group.main.name
+  network_interface_ids      = [azurerm_network_interface.mgmt[count.index].id]
+  availability_set_id        = azurerm_availability_set.aset-rancher.id
+  size                       = var.mgmt-size
+  computer_name              = "mgmt${count.index}"
+  admin_username             = var.vm-user
+  admin_password             = var.vm-passwd
+  enable_automatic_updates   = true
+  provision_vm_agent         = true
+  encryption_at_host_enabled = false
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  winrm_listener {
+    protocol = "Http"
+  }
 
 
   source_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = var.sku
+    publisher = "MicrosoftWindowsDesktop"
+    offer     = "windows-10"
+    sku       = "19h2-pro-g2"
     version   = "latest"
   }
+
   os_disk {
     name                 = "disk-os-mgmt${count.index}"
     caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
+    storage_account_type = "Premium_LRS"
   }
-
-  admin_ssh_key {
-    username   = var.vm-user
-    public_key = tls_private_key.global_key.public_key_openssh
-  }
-
 
   tags = {
     environment = var.environment
-    engine      = "docker"
     role        = "mgmt"
   }
 
 }
+resource "azurerm_virtual_machine_extension" "ext-install-mgmt" {
+  count                = var.count-mgmt
+  name                 = "ext-install-mgmt${count.index}"
+  virtual_machine_id   = azurerm_windows_virtual_machine.mgmt[count.index].id
+  publisher            = "Microsoft.Compute"
+  type                 = "CustomScriptExtension"
+  type_handler_version = "1.9"
 
-# resource "azurerm_managed_disk" "mgmt" {
-#   count                = var.count-mgmt
-#   name                 = "disk-data-mgmt${count.index}"
-#   location             = azurerm_resource_group.main.location
-#   resource_group_name  = azurerm_resource_group.main.name
-#   storage_account_type = "Standard_LRS"
-#   create_option        = "Empty"
-#   disk_size_gb         = 100
-# }
-
-# resource "azurerm_virtual_machine_data_disk_attachment" "mgmt" {
-#   count              = var.count-mgmt
-#   managed_disk_id    = azurerm_managed_disk.mgmt[count.index].id
-#   virtual_machine_id = azurerm_linux_virtual_machine.mgmt[count.index].id
-#   lun                = "10"
-#   caching            = "ReadWrite"
-# }
-
-# resource "azurerm_virtual_machine_extension" "custom-ext-mgmt" {
-#   count                = var.count-mgmt
-#   name                 = "custom-ext-mgmt${count.index}"
-#   virtual_machine_id   = azurerm_linux_virtual_machine.mgmt[count.index].id
-#   publisher            = "Microsoft.Azure.Extensions"
-#   type                 = "CustomScript"
-#   type_handler_version = "2.0"
-
-#   settings = <<SETTINGS
-#     {
-#         "commandToExecute": "hostname && uptime"
-#     }
-# SETTINGS
+  protected_settings = <<SETTINGS
+  {
+    "commandToExecute": "powershell -command \"[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String('${base64encode(data.template_file.tf.rendered)}')) | Out-File -filepath install.ps1\" && powershell -ExecutionPolicy Unrestricted -File install.ps1"
+  }
+  SETTINGS
 
 
-#   tags = {
-#     environment = var.environment
-#   }
-# }
+  tags = {
+    environment = var.environment
+  }
+}
+
+data "template_file" "tf" {
+  template = file("../powershell/install-client.ps1")
+}

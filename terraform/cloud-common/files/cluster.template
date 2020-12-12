@@ -18,30 +18,20 @@ nodes:
   - address: ${longhorn-pip[index]}
     internal_address: ${longhorn-ip[index]}
     hostname_override: ${dns}
-    role: [worker]
+    role: [controlplane, etcd,worker]
     user: rke
 %{ endfor ~}
 
 # using a local ssh agent
 # Using SSH private key with a passphrase - eval `ssh-agent -s` && ssh-add
-ssh_agent_auth: true
+ssh_agent_auth: false
 
 #  SSH key that access all hosts in your cluster
 ssh_key_path: id_rsa
 
 # By default, the name of your cluster will be local
 # Set different Cluster name
-cluster_name: rke
+cluster_name: rancher.ljf.home
 
 # Fail for Docker version not supported by Kubernetes
 ignore_docker_version: false
-
-# prefix_path: /opt/custom_path
-
-cloud_provider:
-    name: aws
-    name: azure
-
-addons_include:
-  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/rook-operator.yaml
-  - https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/rook-cluster.yaml
