@@ -3,11 +3,10 @@ resource "helm_release" "cert_manager" {
   depends_on = [
     k8s_manifest.cert_manager_crds,
   ]
-
   repository       = "https://charts.jetstack.io"
   name             = "cert-manager"
   chart            = "cert-manager"
-  version          = "v${var.cert_manager_version}"
+  version          = "v{var.cert_manager_version}"
   namespace        = "cert-manager"
   create_namespace = true
 }

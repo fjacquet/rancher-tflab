@@ -1,5 +1,5 @@
 locals {
-  cert_manager_crds_content  = file(join("/", [path.module, "files/cert-manager/crds-${var.cert_manager_version}.yaml"]))
+  cert_manager_crds_content  = file(join("/", [path.module, "cloud-common/files/cert-manager/crds-${var.cert_manager_version}.yaml"]))
   cert_manager_crds_sections = split("---", local.cert_manager_crds_content)
 }
 

@@ -35,8 +35,8 @@ resource "azurerm_network_security_group" "nsg-mgmt" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
+    source_address_prefix      = "${var.myip}/32"
     destination_port_ranges    = ["3389"]
-    source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
 
@@ -65,7 +65,7 @@ resource "azurerm_windows_virtual_machine" "mgmt" {
   location                   = azurerm_resource_group.main.location
   resource_group_name        = azurerm_resource_group.main.name
   network_interface_ids      = [azurerm_network_interface.mgmt[count.index].id]
-  availability_set_id        = azurerm_availability_set.aset-rancher.id
+  availability_set_id        = azurerm_availability_set.aset-k8s.id
   size                       = var.mgmt-size
   computer_name              = "mgmt${count.index}"
   admin_username             = var.vm-user

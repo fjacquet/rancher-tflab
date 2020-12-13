@@ -47,7 +47,7 @@ resource "azurerm_network_security_group" "nsg-longhorn" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "46.20.242.61/32"
+    source_address_prefix      = "${var.myip}/32"
     destination_address_prefix = "*"
   }
 
@@ -81,7 +81,7 @@ resource "azurerm_linux_virtual_machine" "longhorn" {
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.longhorn[count.index].id]
   size                  = var.longhorn-size
-  availability_set_id   = azurerm_availability_set.aset-rancher.id
+  availability_set_id   = azurerm_availability_set.aset-k8s.id
 
   source_image_reference {
     publisher = "Canonical"

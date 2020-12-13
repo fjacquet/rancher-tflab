@@ -47,7 +47,7 @@ resource "azurerm_network_security_group" "nsg-worker" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "*"
-    source_address_prefix      = "46.20.242.61/32"
+    source_address_prefix      = "${var.myip}/32"
     destination_address_prefix = "*"
   }
 
@@ -75,17 +75,27 @@ resource "azurerm_public_ip" "worker" {
 
 
 resource "azurerm_linux_virtual_machine" "worker" {
+  depends_on            = [rancher2_cluster.workload]
   count                 = var.count-worker
   name                  = "worker${count.index}"
   location              = azurerm_resource_group.main.location
   resource_group_name   = azurerm_resource_group.main.name
   network_interface_ids = [azurerm_network_interface.worker[count.index].id]
-  availability_set_id   = azurerm_availability_set.aset-rancher.id
+  availability_set_id   = azurerm_availability_set.aset-k8s.id
   size                  = var.worker-size
   computer_name         = "worker${count.index}"
   admin_username        = var.vm-user
 
-
+  custom_data = base64encode(
+    templatefile(
+      join("/", [path.module, "cloud-common/files/userdata_quickstart_node.template"]),
+      {
+        docker_version   = var.docker_version
+        username         = var.vm-user
+        register_command = rancher2_cluster.workload.cluster_registration_token.0.node_command
+      }
+    )
+  )
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"

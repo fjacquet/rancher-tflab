@@ -22,13 +22,13 @@ resource "azurerm_dns_a_record" "mgmt" {
 }
 
 
-resource "azurerm_dns_a_record" "rancher" {
-  count               = var.count-rancher
-  name                = "a-rancher${count.index}"
+resource "azurerm_dns_a_record" "k8s" {
+  count               = var.count-k8s
+  name                = "a-k8s${count.index}"
   zone_name           = azurerm_dns_zone.ljf.name
   resource_group_name = azurerm_resource_group.main.name
   ttl                 = 300
-  target_resource_id  = azurerm_public_ip.rancher[count.index].id
+  target_resource_id  = azurerm_public_ip.k8s[count.index].id
 }
 
 

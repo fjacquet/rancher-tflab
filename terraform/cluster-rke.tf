@@ -1,15 +1,11 @@
 
 # Provision RKE cluster on provided infrastructure
 resource "rke_cluster" "rancher_cluster" {
-  cluster_name = "rancher"
+  depends_on   = [local_file.rke-config, local_file.ssh_private_key_pem]
+  cluster_yaml = file("cluster.yml")
 
-  nodes {
-    address          = var.node_public_ip
-    internal_address = var.node_internal_ip
-    user             = var.node_username
-    role             = ["controlplane", "etcd", "worker"]
-    ssh_key          = local_file.ssh_private_key_pem
+  upgrade_strategy {
+    drain                  = true
+    max_unavailable_worker = "20%"
   }
-
-  kubernetes_version = var.rke_kubernetes_version
 }

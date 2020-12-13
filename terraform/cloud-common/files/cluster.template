@@ -1,26 +1,13 @@
 
 nodes:
-%{ for index, dns in rancher-id ~}
-  - address: ${rancher-pip[index]}
-    internal_address: ${rancher-ip[index]}
+%{ for index, dns in k8s-id ~}
+  - address: ${k8s-pip[index]}
+    internal_address: ${k8s-ip[index]}
     hostname_override: ${dns}
-    role: [controlplane, etcd]
-    user: rke
+    role: [controlplane, etcd, worker]
+    user: ubuntu
 %{ endfor ~}
-%{ for index, dns in worker-id ~}
-  - address: ${worker-pip[index]}
-    internal_address: ${worker-ip[index]}
-    hostname_override: ${dns}
-    role: [worker]
-    user: rke
-%{ endfor ~}
-%{ for index, dns in longhorn-id ~}
-  - address: ${longhorn-pip[index]}
-    internal_address: ${longhorn-ip[index]}
-    hostname_override: ${dns}
-    role: [controlplane, etcd,worker]
-    user: rke
-%{ endfor ~}
+
 
 # using a local ssh agent
 # Using SSH private key with a passphrase - eval `ssh-agent -s` && ssh-add
