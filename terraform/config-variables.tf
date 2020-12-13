@@ -157,3 +157,8 @@ variable "windows_prefered_cluster" {
   description = "Activate windows supports for the custom workload cluster"
   default     = false
 }
+
+variable "name_servers" {
+  description = "IP address for NSG"
+  default     = ["64.4.48.7", "40.90.4.7", "13.107.24.7", "13.107.160.7"]
+}
