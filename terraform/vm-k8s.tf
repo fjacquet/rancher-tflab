@@ -19,41 +19,9 @@ resource "azurerm_network_interface" "k8s" {
 resource "azurerm_network_interface_security_group_association" "k8s" {
   count                     = var.count-k8s
   network_interface_id      = azurerm_network_interface.k8s[count.index].id
-  network_security_group_id = azurerm_network_security_group.nsg-k8s.id
+  network_security_group_id = azurerm_network_security_group.nsg-rke.id
 }
 
-resource "azurerm_network_security_group" "nsg-k8s" {
-  name                = "nsg-k8s-https"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  security_rule {
-    name                       = "ports"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_ranges    = ["22", "80", "443", "6443"]
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-  security_rule {
-    name                       = "any"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "${var.myip}/32"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = var.environment
-  }
-}
 
 resource "azurerm_network_interface_backend_address_pool_association" "k8s" {
   count                   = var.count-k8s
@@ -61,7 +29,6 @@ resource "azurerm_network_interface_backend_address_pool_association" "k8s" {
   ip_configuration_name   = "pip-k8s${count.index}"
   backend_address_pool_id = azurerm_lb_backend_address_pool.backend.id
 }
-
 
 resource "azurerm_public_ip" "k8s" {
   count               = var.count-k8s

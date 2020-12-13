@@ -16,44 +16,10 @@ resource "azurerm_network_interface" "longhorn" {
   }
 }
 
-
 resource "azurerm_network_interface_security_group_association" "longhorn" {
   count                     = var.count-longhorn
   network_interface_id      = azurerm_network_interface.longhorn[count.index].id
-  network_security_group_id = azurerm_network_security_group.nsg-longhorn.id
-}
-
-resource "azurerm_network_security_group" "nsg-longhorn" {
-  name                = "nsg-longhorn-https"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  security_rule {
-    name                       = "ports"
-    priority                   = 101
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_ranges    = ["22", "80", "443", "6443"]
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
-  security_rule {
-    name                       = "any"
-    priority                   = 100
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = "*"
-    source_address_prefix      = "${var.myip}/32"
-    destination_address_prefix = "*"
-  }
-
-  tags = {
-    environment = var.environment
-  }
+  network_security_group_id = azurerm_network_security_group.nsg-rke.id
 }
 
 resource "azurerm_network_interface_backend_address_pool_association" "longhorn" {
@@ -71,8 +37,6 @@ resource "azurerm_public_ip" "longhorn" {
   allocation_method   = "Dynamic"
   ip_version          = "IPv4"
 }
-
-
 
 resource "azurerm_linux_virtual_machine" "longhorn" {
   count                 = var.count-longhorn
@@ -106,7 +70,7 @@ resource "azurerm_linux_virtual_machine" "longhorn" {
       }
     )
   )
-provisioner "remote-exec" {
+  provisioner "remote-exec" {
     inline = [
       "echo 'Waiting for cloud-init to complete...'",
       "cloud-init status --wait > /dev/null",
