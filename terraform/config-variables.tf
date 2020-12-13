@@ -55,7 +55,7 @@ variable "count-mgmt" {
   default = "0"
 }
 variable "count-worker" {
-  default = "2"
+  default = "0"
 }
 variable "environment" {
   default = "demo"
@@ -124,7 +124,7 @@ variable "rancher_version" {
 variable "rancher_server_dns" {
   type        = string
   description = "DNS host name of the Rancher server"
-  default     = "rancher.ljf.home"
+  default     = "rancher.evlab.ch"
 }
 
 
@@ -156,9 +156,4 @@ variable "windows_prefered_cluster" {
   type        = bool
   description = "Activate windows supports for the custom workload cluster"
   default     = false
-}
-
-variable "name_servers" {
-  description = "IP address for NSG"
-  default     = ["64.4.48.7", "40.90.4.7", "13.107.24.7", "13.107.160.7"]
 }
