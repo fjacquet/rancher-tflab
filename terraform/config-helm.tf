@@ -6,7 +6,7 @@ resource "helm_release" "cert_manager" {
   repository       = "https://charts.jetstack.io"
   name             = "cert-manager"
   chart            = "cert-manager"
-  version          = "v{var.cert_manager_version}"
+  version          = "v${var.cert_manager_version}"
   namespace        = "cert-manager"
   create_namespace = true
 }
