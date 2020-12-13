@@ -96,6 +96,21 @@ resource "azurerm_linux_virtual_machine" "worker" {
       }
     )
   )
+  provisioner "remote-exec" {
+    inline = [
+      "echo 'Waiting for cloud-init to complete...'",
+      "cloud-init status --wait > /dev/null",
+      "echo 'Completed cloud-init!'",
+    ]
+
+    connection {
+      type        = "ssh"
+      host        = self.public_ip_address
+      user        = var.vm-user
+      private_key = tls_private_key.global_key.private_key_pem
+    }
+  }
+
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
