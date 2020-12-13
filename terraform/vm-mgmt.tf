@@ -20,11 +20,11 @@ resource "azurerm_network_interface" "mgmt" {
 resource "azurerm_network_interface_security_group_association" "mgmt" {
   count                     = var.count-mgmt
   network_interface_id      = azurerm_network_interface.mgmt[count.index].id
-  network_security_group_id = azurerm_network_security_group.nsg-mgmt.id
+  network_security_group_id = azurerm_network_security_group.nsg_mgmt_rdp.id
 }
 
-resource "azurerm_network_security_group" "nsg-mgmt-rdp" {
-  name                = "nsg-mgmt-rdp"
+resource "azurerm_network_security_group" "nsg_mgmt_rdp" {
+  name                = "nsg_mgmt_rdp"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
 
