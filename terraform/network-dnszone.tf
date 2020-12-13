@@ -5,7 +5,7 @@ resource "azurerm_dns_zone" "ljf" {
 
 resource "azurerm_dns_a_record" "longhorn" {
   count               = var.count-longhorn
-  name                = "a-longhorn${count.index}"
+  name                = "longhorn${count.index}"
   zone_name           = azurerm_dns_zone.ljf.name
   resource_group_name = azurerm_resource_group.main.name
   ttl                 = 300
@@ -14,7 +14,7 @@ resource "azurerm_dns_a_record" "longhorn" {
 
 resource "azurerm_dns_a_record" "mgmt" {
   count               = var.count-mgmt
-  name                = "a-mgmt${count.index}"
+  name                = "mgmt${count.index}"
   zone_name           = azurerm_dns_zone.ljf.name
   resource_group_name = azurerm_resource_group.main.name
   ttl                 = 300
@@ -24,7 +24,7 @@ resource "azurerm_dns_a_record" "mgmt" {
 
 resource "azurerm_dns_a_record" "k8s" {
   count               = var.count-k8s
-  name                = "a-k8s${count.index}"
+  name                = "k8s${count.index}"
   zone_name           = azurerm_dns_zone.ljf.name
   resource_group_name = azurerm_resource_group.main.name
   ttl                 = 300
@@ -34,7 +34,7 @@ resource "azurerm_dns_a_record" "k8s" {
 
 resource "azurerm_dns_a_record" "worker" {
   count               = var.count-worker
-  name                = "a-worker${count.index}"
+  name                = "worker${count.index}"
   zone_name           = azurerm_dns_zone.ljf.name
   resource_group_name = azurerm_resource_group.main.name
   ttl                 = 300
