@@ -4,7 +4,6 @@ resource "azurerm_virtual_network" "main" {
   address_space       = [var.vnet-main]
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-  dns_servers         = var.name_servers
   tags = {
     environment = var.environment
   }
