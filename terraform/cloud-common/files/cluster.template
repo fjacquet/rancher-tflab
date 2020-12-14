@@ -18,7 +18,7 @@ ssh_key_path: id_rsa
 
 # By default, the name of your cluster will be local
 # Set different Cluster name
-cluster_name: rancher.evlab.ch
+cluster_name: rancher.az.evlab.ch
 
 # Fail for Docker version not supported by Kubernetes
 ignore_docker_version: false
