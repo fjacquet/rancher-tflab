@@ -34,3 +34,16 @@ resource "helm_release" "rancher_server" {
     value = var.cert_manager_version
   }
 }
+resource "helm_release" "bitnami-airflow" {
+  depends_on = [
+    helm_release.cert_manager,
+  ]
+
+  repository       = "https://charts.bitnami.com/bitnami"
+  version          = "7.0.3"
+  name             = "airflow"
+  chart            = "airflow"
+  namespace        = "bitnami"
+  create_namespace = true
+
+}
