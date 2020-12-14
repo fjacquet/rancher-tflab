@@ -25,7 +25,7 @@ variable "mgmt-size" {
   default = "Standard_D2s_v4"
 }
 variable "k8s-size" {
-  default = "Standard_D4s_v4"
+  default = "Standard_D2s_v4"
 }
 
 variable "longhorn-size" {
@@ -124,10 +124,8 @@ variable "rancher_version" {
 variable "rancher_server_dns" {
   type        = string
   description = "DNS host name of the Rancher server"
-  default     = "rancher.evlab.ch"
+  default     = "rancher.az.evlab.ch"
 }
-
-
 
 # Required
 variable "workload_cluster_name" {
