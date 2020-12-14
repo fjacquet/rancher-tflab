@@ -11,10 +11,11 @@ resource "rancher2_bootstrap" "admin" {
 
 # Create custom managed cluster for quickstart
 resource "rancher2_cluster" "workload" {
-  provider                 = rancher2.admin
-  name                     = var.workload_cluster_name
-  description              = "Custom workload cluster created by Rancher quickstart"
-  windows_prefered_cluster = var.windows_prefered_cluster
+  provider                  = rancher2.admin
+  name                      = var.workload_cluster_name
+  description               = "Custom workload cluster created by Rancher quickstart"
+  windows_prefered_cluster  = var.windows_prefered_cluster
+  enable_cluster_monitoring = true
   rke_config {
     network {
       plugin  = var.rke_network_plugin
