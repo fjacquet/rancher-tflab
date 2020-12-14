@@ -36,6 +36,6 @@ kubectl create namespace elastic-system
 # Install the cert-manager Helm chart
 helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v1.0.4
 # Install the rancher  Helm chart
-helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.evlab.ch
+helm install rancher rancher-latest/rancher --namespace cattle-system --set hostname=rancher.az.evlab.ch
 # Install elastic operator
 kubectl apply -f https://download.elastic.co/downloads/eck/1.3.1/all-in-one.yaml

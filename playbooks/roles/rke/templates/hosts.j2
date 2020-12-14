@@ -12,5 +12,5 @@ ff02::2     ip6-allrouters
 
 {% for item in play_hosts|sort %}
 {% set short_name = item.split('_') %}
-{{ hostvars[item]['ansible_default_ipv4']['address'] }}  {{ item }} {{ short_name[0] }}.evlab.ch {{ short_name[0] }}
+{{ hostvars[item]['ansible_default_ipv4']['address'] }}  {{ item }} {{ short_name[0] }}.az.evlab.ch {{ short_name[0] }}
 {% endfor %}
