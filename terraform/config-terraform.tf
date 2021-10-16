@@ -1,9 +1,10 @@
 terraform {
-  backend "azurerm" {
-    resource_group_name  = "rg-terraform"
-    storage_account_name = "demosastatetf"
-    container_name       = "tfstate"
-    key                  = "prod.terraform.tfstate"
+  backend "remote" {
+    organization = "fjacquet"
+
+    workspaces {
+      name = "rancher-tflab"
+    }
   }
   required_providers {
     helm = {
